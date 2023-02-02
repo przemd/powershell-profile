@@ -20,7 +20,7 @@ if ((Get-Module PSKubeContext -ErrorAction SilentlyContinue -ListAvailable) -eq 
 Import-Module PSKubeContext
 Set-Alias kubens -Value Select-KubeNamespace
 Set-Alias kubectx -Value Select-KubeContext
-Register-PSKubeContextComplet
+Register-PSKubeContextComplete
 
 if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 {
@@ -31,9 +31,19 @@ if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force
 
 #functions
-Function Set-Dev { az account set --subscription "000-000--000--000"
-                   Set-AzContext -Subscription "000--0000--000-000" }
 
 #run at startup
 Clear-Host
+Set-Location c:\
+function Prompt {
+# Print the current context:
+  Write-Host ("[") -nonewline 
+  $name=(Get-AzContext).name
+  Write-Host ($name.Substring(0, $name.IndexOf(' '))) -nonewline 
+  Write-Host ("]") -nonewline 
+  # Print the working directory:
+  Write-Host ($PWD) -nonewline 
+  # Print the promot symbol:
+  return "> ";
+}
 
