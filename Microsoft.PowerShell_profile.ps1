@@ -29,12 +29,10 @@ if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 
 #aliases
 New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force
-Set-Alias -Name myip -Value Get-ExternalIp -Description "Return external IP"
 
 #functions
-Function Get-ExternalIp {(Invoke-WebRequest ifconfig.me/ip).Content}
-Function Set-Dev { az account set --subscription "ce2905a7-07f9-410e-b377-2b4b998a5ddc"
-                   Set-AzContext -Subscription "ce2905a7-07f9-410e-b377-2b4b998a5ddc" }
+Function Set-Dev { az account set --subscription "000-000--000--000"
+                   Set-AzContext -Subscription "000--0000--000-000" }
 
 #run at startup
 Clear-Host
