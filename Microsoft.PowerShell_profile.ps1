@@ -32,14 +32,15 @@ if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 ################################################
 New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force
 
-#functions
+#Prompt
+################################################
 function Prompt {
 	$prompt = "[$((Get-AzContext).name.Split(' ')[0])]" + (& $GitPromptScriptBlock)
 	return $prompt
 	}
 	
 #run at startup
-########################################################
+###############################################
 Clear-Host
 
 #other software
