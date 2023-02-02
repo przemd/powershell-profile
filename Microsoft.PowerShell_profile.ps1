@@ -32,12 +32,6 @@ if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 ################################################
 New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force
 
-#Prompt
-################################################
-function Prompt {
-	$prompt = "[$((Get-AzContext).name.Split(' ')[0])]" + (& $GitPromptScriptBlock)
-	return $prompt
-	}
 	
 #run at startup
 ###############################################
@@ -53,20 +47,27 @@ if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
 # Check if kubectl is installed
 if (!(Get-Command kubectl -ErrorAction SilentlyContinue)) {
   Write-Host "kubectl is not installed. Installing..."
-  choco install kubernetes-cli
+  choco install kubernetes-cli -y
 }
 # Check if the Azure CLI is installed
 if (!(Get-Command az -ErrorAction SilentlyContinue)) {
   Write-Host "The Azure CLI is not installed. Installing..."
-  choco install azure-cli
+  choco install azure-cli -y
 }
 # Check if Helm is installed
 if (!(Get-Command helm -ErrorAction SilentlyContinue)) {
   Write-Host "Helm is not installed. Installing..."
-  choco install kubernetes-helm
+  choco install kubernetes-helm -y
 }
 # Check if K9s is installed
 if (!(Get-Command k9s -ErrorAction SilentlyContinue)) {
   Write-Host "K9s is not installed. Installing..."
-  choco install k9s
+  choco install k9s -y
 }
+
+#Prompt
+################################################
+function Prompt {
+	$prompt = "[$(kubectl config current-context)]" + (& $GitPromptScriptBlock)
+	return $prompt
+	}
