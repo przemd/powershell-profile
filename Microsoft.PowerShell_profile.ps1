@@ -31,19 +31,11 @@ if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force
 
 #functions
-
+function Prompt {
+	$prompt = "[$((Get-AzContext).name.Split(' ')[0])]" + (& $GitPromptScriptBlock)
+	return $prompt
+	}
+	
 #run at startup
 Clear-Host
-Set-Location c:\
-function Prompt {
-# Print the current context:
-  Write-Host ("[") -nonewline 
-  $name=(Get-AzContext).name
-  Write-Host ($name.Substring(0, $name.IndexOf(' '))) -nonewline 
-  Write-Host ("]") -nonewline 
-  # Print the working directory:
-  Write-Host ($PWD) -nonewline 
-  # Print the promot symbol:
-  return "> ";
-}
 
