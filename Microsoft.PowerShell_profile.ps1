@@ -45,9 +45,6 @@ Clear-Host
 function hist { $find = $args; Write-Host "Finding in full history using {`$_ -like `"*$find*`"}"; 
                Get-Content (Get-PSReadlineOption).HistorySavePath | ? {$_-like "*$find*"} | select -Unique}
 	
-function dev {az account set --subscription "ce2905a7-07f9-410e-b377-2b4b998a5ddc"
-              Set-AzContext -Subscription "ce2905a7-07f9-410e-b377-2b4b998a5ddc" }
-			   
 #other software
 ###############################################
 # Check if Chocolatey is installed
