@@ -1,11 +1,13 @@
 #modules
-#######################################
+###############################################
+#posh-git
 if ((Get-Module Posh-Git -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 {
 	Install-Module Posh-Git -Force -scope currentUser
 }
 Import-Module Posh-Git
 
+#PSKubectlCompletion
 if ((Get-Module PSKubectlCompletion -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 {
 	Install-Module PSKubectlCompletion -Force -scope currentUser
@@ -14,6 +16,7 @@ Import-Module PSKubectlCompletion
 Set-Alias k -Value kubectl
 Register-KubectlCompletion
 
+#PSKubeContext
 if ((Get-Module PSKubeContext -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 {
 	Install-Module PSKubeContext -Force -scope currentUser
@@ -23,20 +26,28 @@ Set-Alias kubens -Value Select-KubeNamespace
 Set-Alias kubectx -Value Select-KubeContext
 Register-PSKubeContextComplete
 
+#azure modules
 if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
 {
 	Install-Module az -Force -scope currentUser
 }
 
 #aliases
-################################################
-New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force
+###############################################
+New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force;
 
-	
 #run at startup
 ###############################################
 Clear-Host
 
+#functions
+###############################################
+function hist { $find = $args; Write-Host "Finding in full history using {`$_ -like `"*$find*`"}"; 
+               Get-Content (Get-PSReadlineOption).HistorySavePath | ? {$_-like "*$find*"} | select -Unique}
+	
+function dev {az account set --subscription "ce2905a7-07f9-410e-b377-2b4b998a5ddc"
+              Set-AzContext -Subscription "ce2905a7-07f9-410e-b377-2b4b998a5ddc" }
+			   
 #other software
 ###############################################
 # Check if Chocolatey is installed
