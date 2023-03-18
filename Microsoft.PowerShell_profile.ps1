@@ -1,5 +1,5 @@
-$openssl = "C:\Program Files\OpenSSL-Win64\bin;"
-$env:path = $openssl + $env:path
+$env:path = "C:\Program Files\OpenSSL-Win64\bin;" + $env:path
+
 $packages = @(
     @{ Name = 'choco';         InstallScript = { iwr -UseBasicParsing -Uri 'https://chocolatey.org/install.ps1' | iex } },
     @{ Name = 'kubectl';       ChocolateyPackage = 'kubernetes-cli' },
@@ -9,18 +9,23 @@ $packages = @(
     @{ Name = 'git';           ChocolateyPackage = 'git.install' },
     @{ Name = 'jq';            ChocolateyPackage = 'jq' },
     @{ Name = 'base64';        ChocolateyPackage = 'base64' },
-    @{ Name = 'node';          ChocolateyPackage = 'nodejs.install'; Version = '8.9.4' },
-    @{ Name = 'python';        ChocolateyPackage = 'python';          Version = '3.5.4' },
+    @{ Name = 'node';          ChocolateyPackage = 'nodejs-lts' },
+    @{ Name = 'python';        ChocolateyPackage = 'python3' },
     @{ Name = 'yarn';          ChocolateyPackage = 'yarn' },
     @{ Name = 'make';          ChocolateyPackage = 'make' },
     @{ Name = 'ssh';           ChocolateyPackage = 'openssh' },
     @{ Name = 'winscp';        ChocolateyPackage = 'winscp' },
     @{ Name = 'grep';          ChocolateyPackage = 'grep' },
-    @{ Name = 'openssl';       ChocolateyPackage = 'openssl' }
+    @{ Name = 'openssl';       CheckCommand = 'openssl.exe'; ChocolateyPackage = 'openssl' },
+    @{ Name = 'docker';        ChocolateyPackage = 'docker-desktop' },
+    @{ Name = 'terraform';     ChocolateyPackage = 'terraform' }
 )
 
-foreach ($package in $packages) {
-    $ExecutableName = $package.Name
+function Install-PackageIfNeeded {
+    param (
+        $package
+    )
+    $ExecutableName = if ($package.ContainsKey('CheckCommand')) { $package.CheckCommand } else { $package.Name }
     if (![string]::IsNullOrEmpty($ExecutableName) -and !(Get-Command $ExecutableName -ErrorAction SilentlyContinue)) {
         Write-Host "$ExecutableName is not installed. Installing..."
 
@@ -37,39 +42,52 @@ foreach ($package in $packages) {
     }
 }
 
-#modules
-###############################################
-#posh-git
-if ((Get-Module Posh-Git -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
-{
-	Install-Module Posh-Git -Force -scope currentUser
+foreach ($package in $packages) {
+    Install-PackageIfNeeded $package
 }
+
+# Modules section
+###############################################
+function Install-ModuleIfNeeded {
+    param (
+        [string]$ModuleName
+    )
+
+    if ((Get-Module $ModuleName -ErrorAction SilentlyContinue -ListAvailable) -eq $null) {
+        Install-Module $ModuleName -Force -Scope CurrentUser
+    }
+}
+
+# posh-git
+Install-ModuleIfNeeded -ModuleName 'Posh-Git'
 Import-Module Posh-Git
 
-#PSKubectlCompletion
-if ((Get-Module PSKubectlCompletion -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
-{
-	Install-Module PSKubectlCompletion -Force -scope currentUser
-}
+# PSKubectlCompletion
+Install-ModuleIfNeeded -ModuleName 'PSKubectlCompletion'
 Import-Module PSKubectlCompletion
 Set-Alias k -Value kubectl
 Register-KubectlCompletion
 
-#PSKubeContext
-if ((Get-Module PSKubeContext -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
-{
-	Install-Module PSKubeContext -Force -scope currentUser
-}
+# PSKubeContext
+Install-ModuleIfNeeded -ModuleName 'PSKubeContext'
 Import-Module PSKubeContext
 Set-Alias kubens -Value Select-KubeNamespace
 Set-Alias kubectx -Value Select-KubeContext
 Register-PSKubeContextComplete
 
-#azure modules
-if ((Get-Module az -ErrorAction SilentlyContinue -ListAvailable) -eq $null)
-{
-	Install-Module az -Force -scope currentUser
-}
+# azure modules
+Install-ModuleIfNeeded -ModuleName 'az'
+
+# AzureAD
+Install-ModuleIfNeeded -ModuleName 'AzureAD'
+
+# dbatools
+Install-ModuleIfNeeded -ModuleName 'dbatools'
+
+# DockerCompletion
+Install-ModuleIfNeeded -ModuleName 'DockerCompletion'
+Import-Module DockerCompletion
+
 
 #aliases
 ###############################################
@@ -79,12 +97,21 @@ New-Alias npp -Value "C:\Program Files\Notepad++\notepad++.exe" -Force;
 ###############################################
 Clear-Host
 
-#functions
+# Functions
 ###############################################
-function hist { $find = $args; Write-Host "Finding in full history using {`$_ -like `"*$find*`"}"; 
-               Get-Content (Get-PSReadlineOption).HistorySavePath | ? {$_-like "*$find*"} | select -Unique}
+function hist {
+    param (
+        [string]$find
+    )
+    Write-Host "Finding in full history using {`$_ -like `"*$find*`"}";
+    Get-Content (Get-PSReadlineOption).HistorySavePath |
+        Where-Object { $_ -like "*$find*" } |
+        Select-Object -Unique
+}
 
-Function myip {(Invoke-WebRequest ifconfig.me/ip).Content}
+Function myip {
+    (Invoke-WebRequest ifconfig.me/ip).Content.Trim()
+}
 
 function Runf {
     param (
@@ -116,3 +143,6 @@ function Prompt {
     $prompt = "[$(kubectl config current-context)]" + (& $GitPromptScriptBlock)
     return $prompt
 }
+
+
+
