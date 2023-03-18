@@ -28,8 +28,6 @@
 
 5. Restart your PowerShell session.
 
-#######################################
-
 # PowerShell Profile
 
 ## Overview
