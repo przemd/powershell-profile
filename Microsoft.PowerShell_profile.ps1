@@ -1,3 +1,42 @@
+$openssl = "C:\Program Files\OpenSSL-Win64\bin;"
+$env:path = $openssl + $env:path
+$packages = @(
+    @{ Name = 'choco';         InstallScript = { iwr -UseBasicParsing -Uri 'https://chocolatey.org/install.ps1' | iex } },
+    @{ Name = 'kubectl';       ChocolateyPackage = 'kubernetes-cli' },
+    @{ Name = 'az';            ChocolateyPackage = 'azure-cli' },
+    @{ Name = 'helm';          ChocolateyPackage = 'kubernetes-helm' },
+    @{ Name = 'k9s';           ChocolateyPackage = 'k9s' },
+    @{ Name = 'git';           ChocolateyPackage = 'git.install' },
+    @{ Name = 'jq';            ChocolateyPackage = 'jq' },
+    @{ Name = 'base64';        ChocolateyPackage = 'base64' },
+    @{ Name = 'node';          ChocolateyPackage = 'nodejs.install'; Version = '8.9.4' },
+    @{ Name = 'python';        ChocolateyPackage = 'python';          Version = '3.5.4' },
+    @{ Name = 'yarn';          ChocolateyPackage = 'yarn' },
+    @{ Name = 'make';          ChocolateyPackage = 'make' },
+    @{ Name = 'ssh';           ChocolateyPackage = 'openssh' },
+    @{ Name = 'winscp';        ChocolateyPackage = 'winscp' },
+    @{ Name = 'grep';          ChocolateyPackage = 'grep' },
+    @{ Name = 'openssl';       ChocolateyPackage = 'openssl' }
+)
+
+foreach ($package in $packages) {
+    $ExecutableName = $package.Name
+    if (![string]::IsNullOrEmpty($ExecutableName) -and !(Get-Command $ExecutableName -ErrorAction SilentlyContinue)) {
+        Write-Host "$ExecutableName is not installed. Installing..."
+
+        if ($package.ContainsKey('InstallScript')) {
+            & $package.InstallScript
+        } else {
+            $chocoParams = @('install', $package.ChocolateyPackage, '-y')
+            if ($package.ContainsKey('Version')) {
+                $chocoParams += '--version'
+                $chocoParams += $package.Version
+            }
+            choco @chocoParams
+        }
+    }
+}
+
 #modules
 ###############################################
 #posh-git
@@ -44,38 +83,36 @@ Clear-Host
 ###############################################
 function hist { $find = $args; Write-Host "Finding in full history using {`$_ -like `"*$find*`"}"; 
                Get-Content (Get-PSReadlineOption).HistorySavePath | ? {$_-like "*$find*"} | select -Unique}
-	
-#other software
-###############################################
-# Check if Chocolatey is installed
-if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
-  Write-Host "Chocolatey is not installed. Installing..."
-  Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-}
-# Check if kubectl is installed
-if (!(Get-Command kubectl -ErrorAction SilentlyContinue)) {
-  Write-Host "kubectl is not installed. Installing..."
-  choco install kubernetes-cli -y
-}
-# Check if the Azure CLI is installed
-if (!(Get-Command az -ErrorAction SilentlyContinue)) {
-  Write-Host "The Azure CLI is not installed. Installing..."
-  choco install azure-cli -y
-}
-# Check if Helm is installed
-if (!(Get-Command helm -ErrorAction SilentlyContinue)) {
-  Write-Host "Helm is not installed. Installing..."
-  choco install kubernetes-helm -y
-}
-# Check if K9s is installed
-if (!(Get-Command k9s -ErrorAction SilentlyContinue)) {
-  Write-Host "K9s is not installed. Installing..."
-  choco install k9s -y
+
+Function myip {(Invoke-WebRequest ifconfig.me/ip).Content}
+
+function Runf {
+    param (
+        [string]$FunctionName
+    )
+
+    $pathToFunctions = 'C:\Users\example\devops-utils'
+
+    if (![string]::IsNullOrEmpty($FunctionName) -and (Test-Path $pathToFunctions)) {
+        Get-ChildItem -Path $pathToFunctions -Filter *.ps1 | ForEach-Object {
+            . $_.FullName
+            if (Get-Command $FunctionName -ErrorAction SilentlyContinue) {
+                & $FunctionName
+            }
+        }
+    } elseif ([string]::IsNullOrEmpty($FunctionName) -and (Test-Path $pathToFunctions)) {
+        Write-Host "Script files in the folder '$pathToFunctions':"
+        Get-ChildItem -Path $pathToFunctions -Filter *.ps1 | ForEach-Object {
+            Write-Host $_.Name
+        }
+    } else {
+        Write-Host "The folder '$pathToFunctions' does not exist."
+    }
 }
 
-#Prompt
+# Prompt
 ################################################
 function Prompt {
-	$prompt = "[$(kubectl config current-context)]" + (& $GitPromptScriptBlock)
-	return $prompt
-	}
+    $prompt = "[$(kubectl config current-context)]" + (& $GitPromptScriptBlock)
+    return $prompt
+}
