@@ -1,8 +1,5 @@
 ## Setting Up the PowerShell Profile
 
-Overview
-This PowerShell profile is tailored for Azure DevOps with Kubernetes and ensures that various software tools are installed on the system, imports PowerShell modules, sets up custom aliases, defines custom functions, and customizes the PowerShell prompt.
-
 1. Check if a PowerShell profile exists by running the following command in your PowerShell session:
 
    Test-Path $PROFILE
