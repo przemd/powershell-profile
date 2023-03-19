@@ -118,7 +118,7 @@ function Runf {
         [string]$FunctionName
     )
 
-    $pathToFunctions = 'C:\Users\example\devops-utils'
+    $pathToFunctions = 'C:\Users\przemek.doczkal\Desktop\git.org\devops-utils\devops-utils'
 
     if (![string]::IsNullOrEmpty($FunctionName) -and (Test-Path $pathToFunctions)) {
         Get-ChildItem -Path $pathToFunctions -Filter *.ps1 | ForEach-Object {
@@ -134,6 +134,36 @@ function Runf {
         }
     } else {
         Write-Host "The folder '$pathToFunctions' does not exist."
+    }
+}
+
+$global:back_path = $PWD.Path
+
+function back {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false, Position=0, ValueFromPipeline=$true)]
+        [string]$arg1
+    )
+
+    if ($arg1 -eq 'mark') {
+        $global:back_path = $PWD.Path
+        Write-Host "Back path set to: $($global:back_path)"
+    }
+    else {
+        if ($null -ne $arg1 -and $arg1 -match '^\d+$') {
+            $count = [int]$arg1
+            $back_path = $PWD.Path
+        } else {
+            $count = -1
+            $back_path = $global:back_path
+        }
+
+        while ($count -gt 0) {
+            $back_path = Split-Path $back_path -Parent
+            $count--
+        }
+        Set-Location $back_path
     }
 }
 
