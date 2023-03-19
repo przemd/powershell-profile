@@ -76,31 +76,36 @@ This section sets up custom aliases for convenience.
 
 This section clears the console when a new PowerShell session is started.
 
-### Functions
-
+## Functions
 This section defines custom functions.
 
+### back
 The `back` function allows you to navigate backward through the directory structure.
 
-          - `back mark`: Set the current path as the "back path" to return to later.
-          - `back`: Go back to the saved "back path."
-          - `back 1`: Go back one level from the current path (like `cd ..`).
-          - `back <number>`: Go back `<number>` levels from the current path.
+- `back mark`: Set the current path as the "back path" to return to later.
+  - Usage: `back mark`
+- `back`: Go back to the saved "back path."
+  - Usage: `back`
+- `back 1`: Go back one level from the current path (like `cd ..`).
+  - Usage: `back 1`
+- `back <number>`: Go back `<number>` levels from the current path.
+  - Usage: `back <number>`
+  - Example: `back 3`
 
-- `hist`: The `hist` function allows you to search your command history for unique instances of a specified search term.
-          It removes duplicates and returns a list of commands you've used in the past that match the search term.
-          Usage:
-          hist
-          hist <search_term>
-          example: 
-          hist kubectl
-- `myip`: Retrieves your public IP address.
-- `Runf`: Dot-sources and runs functions from scripts located in a specified folder. If no function name is provided, it lists the available script files in the folder.
-          Usage:
-          runf
-          runf <function_name>
-          Example:
-          runf Connect-ServicePrincipal.ps1
+### hist
+The `hist` function allows you to search your command history for unique instances of a specified search term. It removes duplicates and returns a list of commands you've used in the past that match the search term.
+- Usage: `hist <search_term>`
+- Example: `hist kubectl`
+
+### myip
+Retrieves your public IP address.
+- Usage: `myip`
+
+### Runf
+Dot-sources and runs functions from scripts located in a specified folder. If no function name is provided, it lists the available script files in the folder.
+- Usage: `runf <function_name>`
+- Example: `runf Connect-ServicePrincipal.ps1`
+
 ### Prompt
 
 This section customizes the PowerShell prompt to display the current Kubernetes context and Git status.
