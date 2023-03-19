@@ -80,6 +80,13 @@ This section clears the console when a new PowerShell session is started.
 
 This section defines custom functions.
 
+The `back` function allows you to navigate backward through the directory structure.
+
+          - `back mark`: Set the current path as the "back path" to return to later.
+          - `back`: Go back to the saved "back path."
+          - `back 1`: Go back one level from the current path (like `cd ..`).
+          - `back <number>`: Go back `<number>` levels from the current path.
+
 - `hist`: The `hist` function allows you to search your command history for unique instances of a specified search term.
           It removes duplicates and returns a list of commands you've used in the past that match the search term.
           Usage:
